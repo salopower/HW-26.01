@@ -1,39 +1,32 @@
-import pytest
 from selenium.webdriver.common.by import By
-from selenium.webdriver import Chrome
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
-driver = Chrome(executable_path='C:\DRIVERS\chromedriver_win32\chromedriver.exe')
-
-
-@pytest.fixture
-def dynamic_properties():
-    driver.get('https://demoqa.com/dynamic-properties')
+from tests_web.test_dynamic_properties.helper import is_element_enabled
 
 
-@pytest.fixture()
-def get_elem_id():
-    elem = driver.find_element(By.XPATH, '//p[text()="This text has random Id"]')
-    yield elem.get_attribute('id')
+class TestDynamicProperties:
 
+    def test_get_id(self, dynamic_properties, get_elem_id):
+        random_text_elem = dynamic_properties.find_element(By.ID, get_elem_id)
+        assert 'random' in random_text_elem.text
 
-def test_random_elem_text(get_elem_id):
-    random_text_elem = driver.find_element(By.ID, get_elem_id)
-    assert 'random' in random_text_elem.text
+    def test_wait_for_enable_element(self, dynamic_properties):
+        locator = (By.CSS_SELECTOR, '#enableAfter')
+        WebDriverWait(driver=dynamic_properties, timeout=6).until(EC.element_to_be_clickable(locator))
+        enable_button = dynamic_properties.find_element(*locator)
+        assert enable_button.is_enabled()
 
+    def test_check_if_element_enabled(self, dynamic_properties):
+        locator = (By.CSS_SELECTOR, '#enableAfter')
+        assert is_element_enabled(dynamic_properties, locator, 6)
 
-def test_wait_for_enable_element():
-    enable_button = driver.find_element(By.CSS_SELECTOR, '#enableAfter')
-    wait = WebDriverWait(driver, 5)
-    wait.until(EC.element_to_be_clickable(enable_button))
-    assert enable_button.is_enabled()
-
-
-def test_button_is_present():
-    visible_button = driver.find_element(By.CSS_SELECTOR, '#visibleAfter')
-    assert not visible_button.is_displayed()
-    driver.refresh()
-    wait = WebDriverWait(driver, 10)
-    wait.until(EC.visibility_of(visible_button))
-    assert visible_button.is_displayed()
+    def test_button_is_present(self, dynamic_properties):
+        dynamic_properties.refresh()
+        locator = (By.CSS_SELECTOR, "#visibleAfter")
+        # wait = WebDriverWait(driver, 10)
+        #     wait.until(EC.visibility_of(visible_button))
+        #     assert visible_button.is_displayed()
+        wait = WebDriverWait(driver=dynamic_properties, timeout=6)
+        wait.until(EC.visibility_of_element_located(locator))
+        assert dynamic_properties.find_element(*locator).is_displayed()
