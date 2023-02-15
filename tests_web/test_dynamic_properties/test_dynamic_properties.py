@@ -24,9 +24,6 @@ class TestDynamicProperties:
     def test_button_is_present(self, dynamic_properties):
         dynamic_properties.refresh()
         locator = (By.CSS_SELECTOR, "#visibleAfter")
-        # wait = WebDriverWait(driver, 10)
-        #     wait.until(EC.visibility_of(visible_button))
-        #     assert visible_button.is_displayed()
         wait = WebDriverWait(driver=dynamic_properties, timeout=6)
         wait.until(EC.visibility_of_element_located(locator))
         assert dynamic_properties.find_element(*locator).is_displayed()
