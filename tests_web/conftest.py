@@ -7,7 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 @pytest.fixture(scope='class', autouse=True)
 def get_chrome():
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.headless = True
+    chrome_options.headless = False
     chrome_options.add_argument("--disable-extensions")
     driver = Chrome(ChromeDriverManager().install(), options=chrome_options)
     yield driver
